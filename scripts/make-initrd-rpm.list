@@ -1,0 +1,36 @@
+# nfs-utils
+nfs-utils
+# tcp_wrappers-libs
+tcp_wrappers-libs
+# rpcbind
+rpcbind
+# libverto-tevent
+libverto-tevent
+# libtirpc
+libtirpc
+# libtevent
+libtevent
+# libtalloc
+libtalloc
+# libref_array
+libref_array
+# libpath_utils
+libpath_utils
+# libnfsidmap
+libnfsidmap
+# libini_config
+libini_config
+# libevent
+libevent
+# libcom_err
+libcom_err
+# libcollection
+libcollection
+# libbasicobjects
+libbasicobjects
+# keyutils
+keyutils
+# gssproxy
+gssproxy
+# e2fsprogs-libs
+e2fsprogs-libs

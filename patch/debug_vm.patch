@@ -1,0 +1,45 @@
+diff --git a/vendor/github.com/opencontainers/runc/libcontainer/container_linux.go b/vendor/github.com/opencontainers/runc/libcontainer/container_linux.go
+index b3e157b..92cbc27 100644
+--- a/vendor/github.com/opencontainers/runc/libcontainer/container_linux.go
++++ b/vendor/github.com/opencontainers/runc/libcontainer/container_linux.go
+@@ -502,7 +502,7 @@ func (c *linuxContainer) newInitProcess(p *Process, cmd *exec.Cmd, parentPipe, c
+ 		}
+ 	}
+ 	_, sharePidns := nsMaps[configs.NEWPID]
+-	data, err := c.bootstrapData(c.config.Namespaces.CloneFlags(), nsMaps)
++	data, err := c.bootstrapData(c.config.Namespaces.CloneFlags(), nsMaps, false)
+ 	if err != nil {
+ 		return nil, err
+ 	}
+@@ -528,7 +528,12 @@ func (c *linuxContainer) newSetnsProcess(p *Process, cmd *exec.Cmd, parentPipe,
+ 	}
+ 	// for setns process, we don't have to set cloneflags as the process namespaces
+ 	// will only be set via setns syscall
+-	data, err := c.bootstrapData(0, state.NamespacePaths)
++	var isDebugVm bool
++	if p.Args[0] == "isula-kata" {
++		p.Args[0] = "/bin/sh"
++		isDebugVm = true
++	}
++	data, err := c.bootstrapData(0, state.NamespacePaths, isDebugVm)
+ 	if err != nil {
+ 		return nil, err
+ 	}
+@@ -1738,7 +1743,7 @@ func encodeIDMapping(idMap []configs.IDMap) ([]byte, error) {
+ // such as one that uses nsenter package to bootstrap the container's
+ // init process correctly, i.e. with correct namespaces, uid/gid
+ // mapping etc.
+-func (c *linuxContainer) bootstrapData(cloneFlags uintptr, nsMaps map[configs.NamespaceType]string) (io.Reader, error) {
++func (c *linuxContainer) bootstrapData(cloneFlags uintptr, nsMaps map[configs.NamespaceType]string, isDebugVm bool) (io.Reader, error) {
+ 	// create the netlink message
+ 	r := nl.NewNetlinkRequest(int(InitMsg), 0)
+ 
+@@ -1749,7 +1754,7 @@ func (c *linuxContainer) bootstrapData(cloneFlags uintptr, nsMaps map[configs.Na
+ 	})
+ 
+ 	// write custom namespace paths
+-	if len(nsMaps) > 0 {
++	if len(nsMaps) > 0 && !isDebugVm {
+ 		nsPaths, err := c.orderNamespacePaths(nsMaps)
+ 		if err != nil {
+ 			return nil, err
